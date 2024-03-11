@@ -47,26 +47,24 @@ public class UserService implements UserDetailsService {
                         .collect(Collectors.toList())
         );
     }
-    public void createNewUser(User user){
-        Optional<UserRole> userRoleOptional = userRoleRepository.findByRoleName(RoleName.USER);
-        if (userRoleOptional.isPresent()) {
-            UserRole userRole = userRoleOptional.get();
-            user.setRoles(Collections.singleton(userRole));
-            try {
-                userRepository.save(user);
-            } catch (Exception e){
-                System.out.println("Ошибка при сохранении пользователя: " + e.getMessage());
-            }
-        }
-        else {
-            UserRole defaultRole = new UserRole();
-            defaultRole.setRoleName(RoleName.USER);
-            user.setRoles(Collections.singleton(defaultRole));
-            try {
-                userRepository.save(user);
-            }catch (Exception e){
-                System.out.println("Ошибка при сохранении пользователя: " + e.getMessage());
-            }
+    public void createNewUser(User user) {
+        // Получаем роль USER из перечисления RoleName
+        RoleName roleName = RoleName.USER;
+
+        // Создаем новый объект UserRole и устанавливаем ему роль из перечисления
+        UserRole userRole = new UserRole();
+        userRole.setRoleName(roleName);
+
+        // Устанавливаем пользователя в объект UserRole
+        userRole.setUser(user);
+
+        userRole.setId(user.getId());
+
+        // Сохраняем нового пользователя с присвоенной ролью
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            System.out.println("Ошибка при сохранении пользователя: " + e.getMessage());
         }
     }
 

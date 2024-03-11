@@ -16,7 +16,6 @@ public class User {
 
     private String username;
     private String password;
-    private String name;
 
     @Column(name = "phone_number")
     private String phoneNumber;

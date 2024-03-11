@@ -2,7 +2,9 @@ package com.example.demo.config;
 
 import com.example.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -22,12 +24,13 @@ import java.security.NoSuchAlgorithmException;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@Configuration
 public class SecurityConfig {
 
-    private JwtRequestFilter jwtRequestFilter;
+//    private JwtRequestFilter jwtRequestFilter;
 
-    private JwtUserDetailsService jwtUserDetailsService;
-
+//    private JwtUserDetailsService jwtUserDetailsService;
+    @Autowired
     private UserService userService;
 
     @Bean
@@ -43,12 +46,14 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exception) ->
                         exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+//        .and().filterBefore
         return http.build();
     }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
-       return new BCryptPasswordEncoder();
+
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
