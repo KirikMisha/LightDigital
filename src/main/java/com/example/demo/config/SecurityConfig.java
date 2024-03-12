@@ -27,9 +27,7 @@ import java.security.NoSuchAlgorithmException;
 @Configuration
 public class SecurityConfig {
 
-//    private JwtRequestFilter jwtRequestFilter;
 
-//    private JwtUserDetailsService jwtUserDetailsService;
     @Autowired
     private UserService userService;
 
@@ -40,7 +38,7 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
                 .requestMatchers("/tickets", "/tickets/**").authenticated()
-                .requestMatchers("/check-phone").hasRole("ADMINISTRATOR")
+                .requestMatchers("/check-phone").hasRole(String.valueOf(10))
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -52,7 +50,6 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
-
         return new BCryptPasswordEncoder();
     }
 

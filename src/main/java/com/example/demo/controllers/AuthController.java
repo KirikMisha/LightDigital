@@ -34,12 +34,12 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest){
         try {
-//            String hashedPassword = bCryptPasswordEncoder.encode(authRequest.getPassword());
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
-        } catch (BadCredentialsException e){
-            logger.log(Level.WARNING, "Ошибка аутентификации: " + e.getMessage());
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(), "Неверный логин или пароль"),
+        } catch (Throwable t){
+            logger.log(Level.WARNING, "Ошибка аутентификации: " + t.getMessage());
+            return new ResponseEntity<>(
+                    new AppError(HttpStatus.UNAUTHORIZED.value(), "Неверный логин или пароль"),
                     HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());

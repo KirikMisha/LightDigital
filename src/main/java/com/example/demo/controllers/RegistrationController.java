@@ -1,10 +1,10 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.RegistrationUserDto;
-import com.example.demo.exceptions.AppError;
 import com.example.demo.models.User;
 import com.example.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,12 +17,17 @@ import javax.validation.Valid;
 import java.util.logging.Logger;
 
 @RestController
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class RegistrationController {
 
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private static final Logger logger = Logger.getLogger(RegistrationController.class.getName());
+
+    public RegistrationController(UserService userService, BCryptPasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationUserDto registrationUserDto, BindingResult bindingResult) {
@@ -45,6 +50,7 @@ public class RegistrationController {
         User user = new User();
         user.setUsername(registrationUserDto.getUsername());
         user.setPassword(encodedPassword);
+
         user.setPhoneNumber(registrationUserDto.getPhoneNumber());
 
         userService.createNewUser(user);
