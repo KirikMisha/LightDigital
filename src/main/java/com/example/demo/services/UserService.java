@@ -35,11 +35,11 @@ public class UserService implements UserDetailsService {
         User user = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(
                 String.format("Пользователь '%s' не найден", username)
         ));
-        var role = user.getRole();
+        var role = "ROLE_" + user.getRole();
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(String.valueOf(role)))
+                Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 

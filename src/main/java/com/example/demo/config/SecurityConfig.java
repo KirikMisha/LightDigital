@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -31,20 +32,23 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private final JWTRequestFilter jwtRequestFilter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
-                .requestMatchers("/tickets", "/tickets/**").authenticated()
-                .requestMatchers("/check-phone").hasRole(String.valueOf(10))
-                .anyRequest().permitAll()
+                    .requestMatchers("/tickets", "/tickets/**").authenticated()
+                    .requestMatchers("/check-phone").hasRole("10")
+                    .anyRequest().permitAll()
                 .and()
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exception) ->
-                        exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
-//        .and().filterBefore
+                        exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

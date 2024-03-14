@@ -5,14 +5,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,20 +21,18 @@ public class JwtTokenUtils {
     @Value("${jwt.lifetime}")
     private Duration jwtLifetime;
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        List<String> rolesList = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        claims.put("roles", rolesList);
+        claims.put("role", ((SimpleGrantedAuthority) userDetails.getAuthorities().iterator().next()).getAuthority());
 
         Date issuedDate = new Date();
-        Date expairedDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
+        Date expirationDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(issuedDate)
-                .setExpiration(expairedDate)
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
@@ -45,11 +41,11 @@ public class JwtTokenUtils {
         return getAllClaimsFromToken(token).getSubject();
     }
 
-    public List<String> getRoles(String token){
-        return getAllClaimsFromToken(token).get("roles", List.class);
+    public String getRole(String token) {
+        return getAllClaimsFromToken(token).get("role", String.class);
     }
 
-    private Claims getAllClaimsFromToken(String token){
+    public Claims getAllClaimsFromToken(String token){
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
