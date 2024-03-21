@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
-                    .requestMatchers("/tickets", "/tickets/**").authenticated()
+                    .requestMatchers("/tickets", "/tickets/**").hasRole("10")
                     .requestMatchers("/check-phone").hasRole("10")
                     .anyRequest().permitAll()
                 .and()

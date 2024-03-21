@@ -39,8 +39,18 @@ public class AuthController {
                     new AppError(HttpStatus.UNAUTHORIZED.value(), "Неверный логин или пароль"),
                     HttpStatus.UNAUTHORIZED);
         }
+
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
+
+        if (userDetails == null) {
+            logger.log(Level.WARNING, "Ошибка аутентификации: детали пользователя не найдены");
+            return new ResponseEntity<>(
+                    new AppError(HttpStatus.UNAUTHORIZED.value(), "Ошибка аутентификации"),
+                    HttpStatus.UNAUTHORIZED);
+        }
+
         String token = jwtTokenUtils.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
+
 }

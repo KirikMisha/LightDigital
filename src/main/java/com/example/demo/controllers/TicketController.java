@@ -6,9 +6,9 @@ import com.example.demo.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +24,13 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<Ticket> createTicket(@RequestBody Ticket ticket) {
-        ticket.setStatus(TicketStatus.DRAFT);
-        Ticket createdTicket = ticketService.createTicket(ticket);
+    public ResponseEntity<Ticket> createTicket(@RequestBody Ticket ticket, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        String usernameFromToken = authentication.getName();
+        Ticket createdTicket = ticketService.createTicket(ticket, usernameFromToken);
         return new ResponseEntity<>(createdTicket, HttpStatus.CREATED);
     }
 
@@ -73,4 +77,3 @@ public class TicketController {
         }
     }
 }
-

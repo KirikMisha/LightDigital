@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +38,10 @@ public class JWTRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtTokenUtils.getUsername(jwt);
             }catch (ExpiredJwtException e){
-                log.debug("Время жизни токена вышло");
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("Время жизни токена истекло");
             }catch (SignatureException e){
                 log.debug("Подпись некорректна");
             }
@@ -52,7 +56,9 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(token);
             } else {
-                log.debug("Роль пользователя не найдена в токене");
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("Роль пользователя не найдена в токене");
             }
         }
         filterChain.doFilter(request, response);
